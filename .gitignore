@@ -7,3 +7,6 @@ config.env
 *.session-shm
 *.session-wal
 /.vscode/
+.DS_Store
+cache/
+bot/downloads/

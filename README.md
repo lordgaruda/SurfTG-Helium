@@ -1,18 +1,7 @@
 <div align="center">
-    <img src="https://cdn.jsdelivr.net/gh/weebzone/weebzone/data/Surf-TG/src/logo.png" alt="Surf_TG" style="height:20%; width:50%;"><br>
+    <img src="https://cdn.jsdelivr.net/gh/lordgaruda/releases@main/data/SurfTG-Helium.png" alt="Surf_TG" style="height:20%; width:50%;"><br>
     <i>Python Web App which Indexes a Your Telegram Channel and Serves its Files for Download and Stream.</i>
 </div>
-
-
-<div align="center" >
-
-[![](https://img.shields.io/github/repo-size/weebzone/Surf-TG?color=green&label=Repo%20Size&labelColor=292c3b)](#) [![](https://img.shields.io/github/commit-activity/m/weebzone/Surf-TG?logo=github&labelColor=292c3b&label=Github%20Commits)](#) [![](https://img.shields.io/github/license/weebzone/Surf-TG?style=flat&label=License&labelColor=292c3b)](#)|[![](https://img.shields.io/github/issues-raw/weebzone/Surf-TG?style=flat&label=Open%20Issues&labelColor=292c3b)](#) [![](https://img.shields.io/github/issues-closed-raw/weebzone/Surf-TG?style=flat&label=Closed%20Issues&labelColor=292c3b)](#) [![](https://img.shields.io/github/issues-pr-raw/weebzone/Surf-TG?style=flat&label=Open%20Pull%20Requests&labelColor=292c3b)](#) [![](https://img.shields.io/github/issues-pr-closed-raw/weebzone/Surf-TG?style=flat&label=Closed%20Pull%20Requests&labelColor=292c3b)](#)
-:---:|:---:|
-[![](https://img.shields.io/github/languages/count/weebzone/Surf-TG?style=flat&label=Total%20Languages&labelColor=292c3b&color=blueviolet)](#) [![](https://img.shields.io/github/languages/top/weebzone/Surf-TG?style=flat&logo=python&labelColor=292c3b)](#) [![](https://img.shields.io/github/last-commit/weebzone/Surf-TG?style=flat&label=Last%20Commit&labelColor=292c3b&color=important)](#) [![](https://badgen.net/github/branches/weebzone/Surf-TG?label=Total%20Branches&labelColor=292c3b)](#)|[![](https://img.shields.io/github/forks/weebzone/Surf-TG?style=flat&logo=github&label=Forks&labelColor=292c3b&color=critical)](#) [![](https://img.shields.io/github/stars/weebzone/Surf-TG?style=flat&logo=github&label=Stars&labelColor=292c3b&color=yellow)](#) |
-
-</div>
-
-
 
 ## ***Features*** 📑
 
@@ -57,7 +46,7 @@ To run this Surf-TG, you will need to add the following environment variables to
 | `BOT_TOKEN` (required) | The Telegram Bot Token that you got from @BotFather `str`
 | `AUTH_CHANNEL` (required) | Chat_ID of the Channel you are using for index (Seperate Multiple Channel By `,` eg- `-100726731829, -10022121832`). `int`
 | `DATABASE_URL` (required) | Your Mongo Database URL (Connection string). Follow this [Guide](https://github.com/weebzone/Surf-TG/tree/main#generate-database-) to generate database. `str`
-| `SESSION_STRING` | Use same account which is a participant of the `AUTH_CHANNEL` Use this [Tool](https://github.com/weebzone/Surf-TG/tree/main#generate-session-string) to generate Session String. `str`
+| `SESSION_STRING` (optional/deprecated) | **No longer required!** The bot now uses `BOT_TOKEN` for all operations. Session string is deprecated and can be left empty. `str`
 | `BASE_URL` (required) | Valid BASE URL where the bot is deployed. Format of URL should be `http://myip`, where myip is the IP/Domain(public) of your bot. For `Heroku` use `App Url`. `str`
 | `PORT` | Port on which app should listen to, defaults to `8080`. `int`
 | `USERNAME` | default  username is `admin`. `str`
@@ -268,7 +257,7 @@ Feel free to contribute to this project if you have any further ideas
 
 ## **Copyright** ©️ 
 
-Copyright (C) 2024-present [Weebzone](https://github.com/weebzone) under [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.en.html).
+Copyright (C) 2025-present [Weebzone](https://github.com/weebzone) under [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
 Surf-TG is Free Software: You can use, study share and improve it at your
 will. Specifically you can redistribute and/or modify it under the terms of the

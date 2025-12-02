@@ -198,8 +198,7 @@ async def editConfig_route(request):
         return web.json_response({'msg': 'Who the hell you are'})
     data = await request.post()
     channel = data.get('channel')
-    theme = data.get('theme')
-    success = await db.update_config(theme=theme, auth_channel=channel)
+    success = await db.update_config(auth_channel=channel)
     if not success:
         return web.HTTPInternalServerError()
     return web.HTTPFound('/')

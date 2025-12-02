@@ -2,7 +2,7 @@ from os.path import splitext
 import re
 from bot.config import Telegram
 from bot.helper.database import Database
-from bot.telegram import StreamBot, UserBot
+from bot.telegram import StreamBot
 from bot.helper.file_size import get_readable_file_size
 from bot.helper.cache import get_cache, save_cache
 from asyncio import gather
@@ -39,12 +39,18 @@ async def get_messages(chat_id, first_message_id, last_message_id, batch_size=50
 
 
 async def get_files(chat_id, page=1):
-    if Telegram.SESSION_STRING == '':
-        return await db.list_tgfiles(id=chat_id, page=page)
+    # Try database first
+    db_results = await db.list_tgfiles(id=chat_id, page=page)
+    if db_results:
+        return db_results
+    
+    # Check cache
     if cache := get_cache(chat_id, int(page)):
         return cache
+    
+    # Fallback to StreamBot
     posts = []
-    async for post in UserBot.get_chat_history(chat_id=int(chat_id), limit=50, offset=(int(page) - 1) * 50):
+    async for post in StreamBot.get_chat_history(chat_id=int(chat_id), limit=50, offset=(int(page) - 1) * 50):
         file = post.video or post.document
         if not file:
             continue

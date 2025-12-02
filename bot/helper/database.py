@@ -79,16 +79,16 @@ class Database:
             'file_id', DESCENDING).skip(offset).limit(per_page)
         return list(mydoc)
 
-    async def update_config(self, theme, auth_channel):
+    async def update_config(self, auth_channel):
         bot_id = Telegram.BOT_TOKEN.split(":", 1)[0]
         config = self.config.find_one({"_id": bot_id})
         if config is None:
             result = self.config.insert_one(
-                {"_id": bot_id, "theme": theme, "auth_channel": auth_channel})
+                {"_id": bot_id, "auth_channel": auth_channel})
             return result.inserted_id is not None
         else:
             result = self.config.update_one({"_id": bot_id}, {
-                "$set": {"theme": theme, "auth_channel": auth_channel}})
+                "$set": {"auth_channel": auth_channel}})
             return result.modified_count > 0
 
     async def get_variable(self, key):
