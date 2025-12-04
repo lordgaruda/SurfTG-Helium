@@ -15,7 +15,7 @@ basicConfig(
 )
 load_dotenv('config.env', override=True)
 
-UPSTREAM_REPO = getenv('UPSTREAM_REPO', "https://github.com/weebzone/Surf-TG")
+UPSTREAM_REPO = getenv('UPSTREAM_REPO', "https://github.com/lordgaruda/SurfTG-Helium.git")
 UPSTREAM_BRANCH = getenv('UPSTREAM_BRANCH', "main")
 
 if UPSTREAM_REPO is not None:
@@ -23,8 +23,8 @@ if UPSTREAM_REPO is not None:
         srun(["rm", "-rf", ".git"])
         
     update = srun([f"git init -q \
-                     && git config --global user.email doc.adhikari@gmail.com \
-                     && git config --global user.name SurfTG \
+                     && git config --global user.email falgunpatel.fv@gmail.com \
+                     && git config --global user.name lordgaruda \
                      && git add . \
                      && git commit -sm update -q \
                      && git remote add origin {UPSTREAM_REPO} \
