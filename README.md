@@ -11,10 +11,8 @@
 - Login support 🔐
 - Faster Resumeable Download Link ⏩
 - Stream Video Support 📺
-- 25 Website Themes (Bootswatch) 🎨
 - Playlist Creator Support 📀
 - Database Support 💾
-- Cache System 🔄
 
 ### ***To-Do*** 📦
 
@@ -59,20 +57,6 @@ To run this Surf-TG, you will need to add the following environment variables to
 | `THEME` | Choose any Bootswatch theme for UI, Default is `flatly`. `str`
 | `MULTI_CLIENT` | Set this `True` if using `MULTI_TOKEN`, Default is `False`. `bool`
 | `HIDE_CHANNEL` | Set this `True` to hide the Channel Card in Public Web, Default is `False`. `bool`
-
-## ***Themes*** 🎨
-
-* There are 25 Themes from [bootswatch](https://github.com/thomaspark/bootswatch) official [Bootstrap](https://getbootstrap.com) Themes.
-* You can check Theme from [bootswatch.com](https://bootswatch.com) before selecting.
-* To Change theme, Set Appropriate Theme name in `Theme` Variable.
-
-| **Themes**|         |         |         |        |          |
-|:---------:|:-------:|:-------:|:-------:|:------:|:--------:|
-| cerulean  | cosmo   | cyborg  | darkly  | flatly | journal  |
-| litera    | lumen   | lux     | materia | minty  | pulse    |
-| sandstone | simplex | sketchy | slate   | solar  | spacelab |
-| superhero | united  | yeti    | vapor   | morph  | quartz   |    
-| zephyr    |
 
 ### ***Multiple Bots*** 🚀 (Speed Booster)
 
@@ -146,8 +130,8 @@ index - store files in Database
 ### Deploy Locally:
 
 ```sh
-git clone https://github.com/weebzone/Surf-TG
-cd Surf-TG
+git clone https://github.com/lordgaruda/SurfTG-Helium
+cd SurfTG-Helium
 python3 -m venv ./venv
 . ./venv/bin/activate
 pip install -r requirements.txt
@@ -171,8 +155,8 @@ python3 -m bot
 
 * Clone the Repository:
 ```sh
-git clone https://github.com/weebzone/Surf-TG
-cd Surf-TG
+git clone git@github.com:lordgaruda/SurfTG-Helium
+cd SurfTG-Helium
 ```
 - Start Docker daemon (SKIP if already running, mostly you don't need to do this):
 ```sh
@@ -180,12 +164,12 @@ sudo dockerd
 ```
 * Build own Docker image:
 ```sh
-sudo docker build -t Surf-TG .
+sudo docker build -t SurfTG-Helium .
 ```
 
 * Start Container:
 ```sh
-sudo docker run -p 8080:8080 Surf-TG
+sudo docker run -p 8080:8080 SurfTG-Helium
 ```
 * To stop the running image:
 
