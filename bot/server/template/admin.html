@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/weebzone/weebzone/data/Surf-TG/src/ico2.png" type="image/x-icon">
+    <title>Admin Panel - Surf TG Helium</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151b3d;
+            --bg-card: #1a2038;
+            --bg-hover: #252d4d;
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b2ff7;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d6;
+            --border-color: #2d3654;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 32, 56, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .dashboard-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .clients-table th,
+        .clients-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .clients-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .clients-table tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-idle {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s;
+        }
+
+        .recent-activity {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .activity-stream {
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .activity-download {
+            background: rgba(123, 47, 247, 0.2);
+        }
+
+        .activity-search {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-type {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .system-health {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .health-item {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .health-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .health-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a class="navbar-brand" href="/">
+            <img src="https://cdn.jsdelivr.net/gh/lordgaruda/releases@main/data/SurfTG-Helium-logo2.png" alt="Logo">
+        </a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/admin">Admin Panel</a>
+            <form action="/logout" method="post" style="margin: 0;">
+                <button type="submit" class="refresh-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🛡️ Admin Control Panel</h1>
+            <p>Real-time monitoring and analytics dashboard</p>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">📊</span>
+                </div>
+                <div class="stat-title">Total Requests</div>
+                <div class="stat-value">{{ analytics.total_requests }}</div>
+                <div class="stat-subtitle">Since {{ analytics.uptime }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🎬</span>
+                </div>
+                <div class="stat-title">Active Streams</div>
+                <div class="stat-value">{{ analytics.active_streams }}</div>
+                <div class="stat-subtitle">Peak: {{ analytics.peak_streams }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">📡</span>
+                </div>
+                <div class="stat-title">Bandwidth Used</div>
+                <div class="stat-value">{{ analytics.total_bandwidth }}</div>
+                <div class="stat-subtitle">{{ analytics.avg_bandwidth_per_request }}/request</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🤖</span>
+                </div>
+                <div class="stat-title">Active Clients</div>
+                <div class="stat-value">{{ analytics.clients_count }}</div>
+                <div class="stat-subtitle">Multi-client mode</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">⏱️</span>
+                </div>
+                <div class="stat-title">Uptime</div>
+                <div class="stat-value" style="font-size: 1.5rem;">{{ analytics.uptime }}</div>
+                <div class="stat-subtitle">Running smoothly</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">❌</span>
+                </div>
+                <div class="stat-title">Error Rate</div>
+                <div class="stat-value">{{ analytics.error_rate }}</div>
+                <div class="stat-subtitle">{{ analytics.error_count }} errors</div>
+            </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">⚡ System Health</h2>
+            </div>
+            <div class="system-health">
+                <div class="health-item">
+                    <div class="health-label">CPU Usage</div>
+                    <div class="health-value">{{ analytics.system.cpu_usage }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ analytics.system.cpu_usage }}"></div>
+                    </div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">RAM Usage</div>
+                    <div class="health-value">{{ analytics.system.ram_usage }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ analytics.system.ram_usage }}"></div>
+                    </div>
+                    <div class="stat-subtitle">{{ analytics.system.ram_used }} / {{ analytics.system.ram_total }}</div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">Disk Usage</div>
+                    <div class="health-value">{{ analytics.system.disk_usage }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ analytics.system.disk_usage }}"></div>
+                    </div>
+                    <div class="stat-subtitle">{{ analytics.system.disk_used }} / {{ analytics.system.disk_total }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Charts -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">📈 Usage Analytics (Last 24 Hours)</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="usageChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bot Clients -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">🤖 Bot Clients Status</h2>
+            </div>
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Username</th>
+                        <th>Current Workload</th>
+                        <th>Total Requests</th>
+                        <th>Bandwidth</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in analytics.clients %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td>@{{ client.username }}</td>
+                        <td>{{ client.workload }}</td>
+                        <td>{{ client.requests }}</td>
+                        <td>{{ client.bandwidth }}</td>
+                        <td>
+                            {% if client.workload > 0 %}
+                            <span class="status-badge status-active">Active</span>
+                            {% else %}
+                            <span class="status-badge status-idle">Idle</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Request Breakdown -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">📊 Request Breakdown</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Stream Requests</div>
+                    <div class="stat-value">{{ analytics.stream_count }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (analytics.stream_count / analytics.total_requests * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Download Requests</div>
+                    <div class="stat-value">{{ analytics.download_count }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (analytics.download_count / analytics.total_requests * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Search Requests</div>
+                    <div class="stat-value">{{ analytics.search_count }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (analytics.search_count / analytics.total_requests * 100)|int }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">🔔 Recent Activity</h2>
+            </div>
+            <div class="recent-activity">
+                {% for request in analytics.recent_requests %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-{{ request.type }}">
+                        {% if request.type == 'stream' %}🎬{% elif request.type == 'download' %}📥{% else %}🔍{% endif %}
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-type">{{ request.type|capitalize }} Request</div>
+                        <div class="activity-time">{{ request.timestamp }} - Client {{ request.client_id }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">⚙️ Admin Actions</h2>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="location.reload()">🔄 Refresh Dashboard</button>
+                <button class="btn btn-primary" onclick="clearCache()">🗑️ Clear Cache</button>
+                <button class="btn btn-danger" onclick="resetStats()">⚠️ Reset Statistics</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Usage Chart
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const usageChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ analytics.hourly.labels|tojson }},
+                datasets: [{
+                    label: 'Requests',
+                    data: {{ analytics.hourly.requests|tojson }},
+                    borderColor: '#00d9ff',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Bandwidth (MB)',
+                    data: {{ analytics.hourly.bandwidth|tojson }},
+                    borderColor: '#7b2ff7',
+                    backgroundColor: 'rgba(123, 47, 247, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#b8c5d6'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#b8c5d6' },
+                        grid: { color: '#2d3654' }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        ticks: { color: '#b8c5d6' },
+                        grid: { color: '#2d3654' },
+                        title: {
+                            display: true,
+                            text: 'Requests',
+                            color: '#00d9ff'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        ticks: { color: '#b8c5d6' },
+                        grid: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Bandwidth (MB)',
+                            color: '#7b2ff7'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Admin Actions
+        async function clearCache() {
+            if (confirm('Are you sure you want to clear the cache?')) {
+                try {
+                    const response = await fetch('/admin/clear-cache', { method: 'POST' });
+                    if (response.ok) {
+                        alert('Cache cleared successfully!');
+                        location.reload();
+                    }
+                } catch (error) {
+                    alert('Failed to clear cache');
+                }
+            }
+        }
+
+        async function resetStats() {
+            if (confirm('Are you sure you want to reset all statistics? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('/admin/reset-stats', { method: 'POST' });
+                    if (response.ok) {
+                        alert('Statistics reset successfully!');
+                        location.reload();
+                    }
+                } catch (error) {
+                    alert('Failed to reset statistics');
+                }
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setTimeout(() => location.reload(), 30000);
+    </script>
+</body>
+
+</html>

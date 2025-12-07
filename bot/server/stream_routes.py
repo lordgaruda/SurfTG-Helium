@@ -17,6 +17,7 @@ from bot.helper.index import get_files, posts_file
 from bot.server.custom_dl import ByteStreamer
 from bot.server.render_template import render_page
 from bot.helper.cache import rm_cache
+from bot.helper.analytics import analytics
 
 from bot.telegram import StreamBot
 
@@ -298,6 +299,10 @@ async def search_route(request):
         page = request.query.get('page', '1')
         query = request.query.get('q')
         is_admin = username == Telegram.ADMIN_USERNAME
+        
+        # Track search request
+        analytics.track_request('search')
+        
         try:
             posts = await search(chat_id, page=page, query=query)
             phtml = await posts_file(posts, chat_id)
@@ -305,6 +310,7 @@ async def search_route(request):
             text = f"{chat.title} - {query}"
             return web.Response(text=await render_page(None, None, route='index', html=phtml, msg=text, chat_id=chat_id.replace("-100", ""), is_admin=is_admin), content_type='text/html')
         except Exception as e:
+            analytics.track_error()
             logging.critical(e.with_traceback(None))
             raise web.HTTPInternalServerError(text=str(e)) from e
     else:
@@ -333,15 +339,22 @@ async def stream_handler_watch(request: web.Request):
             chat_id = f"-100{chat_id}"
             message_id = request.query.get('id')
             secure_hash = request.query.get('hash')
+            
+            # Track stream request
+            analytics.track_request('stream')
+            
             return web.Response(text=await render_page(message_id, secure_hash, chat_id=chat_id), content_type='text/html')
         except InvalidHash as e:
+            analytics.track_error()
             raise web.HTTPForbidden(text=e.message) from e
         except FIleNotFound as e:
+            analytics.track_error()
             db.delete_file(chat_id=chat_id, msg_id=message_id, hash=secure_hash)
             raise web.HTTPNotFound(text=e.message) from e
         except (AttributeError, BadStatusLine, ConnectionResetError):
             pass
         except Exception as e:
+            analytics.track_error()
             logging.critical(e.with_traceback(None))
             raise web.HTTPInternalServerError(text=str(e)) from e
     else:
@@ -357,15 +370,28 @@ async def stream_handler(request: web.Request):
         message_id = request.query.get('id')
         #name = request.match_info['encoded_name']
         secure_hash = request.query.get('hash')
-        return await media_streamer(request, int(chat_id), int(message_id), secure_hash)
+        
+        # Track download/stream request
+        analytics.track_request('download')
+        analytics.track_stream_start()
+        
+        try:
+            response = await media_streamer(request, int(chat_id), int(message_id), secure_hash)
+            return response
+        finally:
+            analytics.track_stream_end()
+            
     except InvalidHash as e:
+        analytics.track_error()
         raise web.HTTPForbidden(text=e.message) from e
     except FIleNotFound as e:
+        analytics.track_error()
         db.delete_file(chat_id=chat_id, msg_id=message_id, hash=secure_hash)
         raise web.HTTPNotFound(text=e.message) from e
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
     except Exception as e:
+        analytics.track_error()
         logging.critical(e.with_traceback(None))
         raise web.HTTPInternalServerError(text=str(e))
 
@@ -445,6 +471,9 @@ async def media_streamer(request: web.Request, chat_id: int, id: int, secure_has
             mime_type = "application/octet-stream"
             file_name = f"{secrets.token_hex(2)}.unknown"
 
+    # Track bandwidth usage
+    analytics.track_bandwidth(req_length, index)
+
     return web.Response(
         status=206 if range_header else 200,
         body=body,
@@ -456,3 +485,58 @@ async def media_streamer(request: web.Request, chat_id: int, id: int, secure_has
             "Accept-Ranges": "bytes",
         },
     )
+
+
+@routes.get('/admin')
+async def admin_panel(request):
+    """Admin panel dashboard with analytics"""
+    session = await get_session(request)
+    if (username := session.get('user')) != Telegram.ADMIN_USERNAME:
+        session['redirect_url'] = '/admin'
+        return web.HTTPFound('/login')
+    
+    # Get analytics summary
+    analytics_data = analytics.get_summary()
+    
+    return web.Response(
+        text=await render_page(None, None, route='admin', analytics=analytics_data),
+        content_type='text/html'
+    )
+
+
+@routes.post('/admin/clear-cache')
+async def admin_clear_cache(request):
+    """Clear all cache"""
+    session = await get_session(request)
+    if (username := session.get('user')) != Telegram.ADMIN_USERNAME:
+        return web.json_response({'error': 'Unauthorized'}, status=403)
+    
+    try:
+        rm_cache()
+        return web.json_response({'success': True, 'message': 'Cache cleared successfully'})
+    except Exception as e:
+        return web.json_response({'error': str(e)}, status=500)
+
+
+@routes.post('/admin/reset-stats')
+async def admin_reset_stats(request):
+    """Reset analytics statistics"""
+    session = await get_session(request)
+    if (username := session.get('user')) != Telegram.ADMIN_USERNAME:
+        return web.json_response({'error': 'Unauthorized'}, status=403)
+    
+    try:
+        analytics.reset_stats()
+        return web.json_response({'success': True, 'message': 'Statistics reset successfully'})
+    except Exception as e:
+        return web.json_response({'error': str(e)}, status=500)
+
+
+@routes.get('/admin/api/stats')
+async def admin_api_stats(request):
+    """API endpoint for real-time statistics"""
+    session = await get_session(request)
+    if (username := session.get('user')) != Telegram.ADMIN_USERNAME:
+        return web.json_response({'error': 'Unauthorized'}, status=403)
+    
+    return web.json_response(analytics.get_summary())
