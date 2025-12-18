@@ -48,18 +48,37 @@ async def get_files(chat_id, page=1):
     if cache := get_cache(chat_id, int(page)):
         return cache
     
-    # Fallback to StreamBot
+    # Fallback to StreamBot using get_messages (bot-compatible)
+    # Note: This requires the channel to be indexed first using /index command
+    # as bots cannot use get_chat_history (messages.GetHistory is user-only)
     posts = []
-    async for post in StreamBot.get_chat_history(chat_id=int(chat_id), limit=50, offset=(int(page) - 1) * 50):
-        file = post.video or post.document
-        if not file:
-            continue
-        title = file.file_name or post.caption or file.file_id
-        title, _ = splitext(title)
-        title = re.sub(r'[.,|_\',]', ' ', title)
-        posts.append({"msg_id": post.id, "title": title,
-                    "hash": file.file_unique_id[:6], "size": get_readable_file_size(file.file_size), "type": file.mime_type})
-    save_cache(chat_id, {"posts": posts}, page)
+    batch_size = 50
+    # Calculate message ID range based on page (newer messages have higher IDs)
+    # This is a best-effort fallback - for reliable results, use /index command
+    start_id = ((int(page) - 1) * batch_size) + 1
+    end_id = int(page) * batch_size
+    
+    message_ids = list(range(start_id, end_id + 1))
+    try:
+        messages = await StreamBot.get_messages(int(chat_id), message_ids)
+        if not isinstance(messages, list):
+            messages = [messages]
+        for post in messages:
+            if post and not post.empty:
+                file = post.video or post.document
+                if not file:
+                    continue
+                title = file.file_name or post.caption or file.file_id
+                title, _ = splitext(title)
+                title = re.sub(r'[.,|_\',]', ' ', title)
+                posts.append({"msg_id": post.id, "title": title,
+                            "hash": file.file_unique_id[:6], "size": get_readable_file_size(file.file_size), "type": file.mime_type})
+    except Exception as e:
+        # If fetching by IDs fails, return empty - user should run /index command
+        pass
+    
+    if posts:
+        save_cache(chat_id, {"posts": posts}, page)
     return posts
 
 async def posts_file(posts, chat_id):
